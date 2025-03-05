@@ -17,10 +17,9 @@ class ImageCropper:
 
         self.canvas = Canvas(root, cursor="cross")
         self.canvas.pack(fill="both", expand=True)
-        # 存储标注信息的列表
+
         self.annotations = []
 
-        # 初始化鼠标事件变量
         self.points = []
         self.start_x = None
         self.start_y = None
@@ -29,10 +28,9 @@ class ImageCropper:
         self.polygon = None
         self.rect = None
         self.crop_area = None
-        self.drawing_mode = False  # 标注模式开关
-        self.erasing_mode = False  # 擦除模式开关
+        self.drawing_mode = False 
+        self.erasing_mode = False 
 
-        # 鼠标事件绑定
         self.canvas.bind("<ButtonPress-1>", self.on_mouse_press)
         self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_mouse_release)
@@ -43,7 +41,6 @@ class ImageCropper:
         # Bind mouse wheel events for windows
         self.canvas.bind("<MouseWheel>", self.on_mouse_wheel)
 
-        # 顶部按钮区
         top_frame = Frame(root)
         top_frame.pack(side="top", fill="x", padx=5)
 
@@ -71,8 +68,6 @@ class ImageCropper:
         self.confirm_button = Button(top_frame, text="Confirm", command=self.confirm)
         self.confirm_button.pack(side="left", padx=5)
 
-
-        # 底部滑块区
         bottom_frame = Frame(root)
         bottom_frame.pack(side="top", fill="x", padx=5)
 
@@ -86,7 +81,6 @@ class ImageCropper:
         self.contrast_scale = Scale(bottom_frame, from_=-127, to=255, orient="horizontal", command=self.show_frame)
         self.contrast_scale.pack(side="left", fill="x", expand=True, padx=5)
 
-        # 底部状态标签
         self.label = Label(root, text="")
         self.label.pack(side="bottom")
 
@@ -123,24 +117,18 @@ class ImageCropper:
         self.end_entry = Entry(bottom_frame)
         self.end_entry.pack(side="left", padx=5)
 
-        # 创建标注类别选择下拉菜单
         self.annotation_type = StringVar()
-        self.annotation_type.set("Label 1 Red")  # 设置默认类别
+        self.annotation_type.set("Label 1 Red") 
         self.annotation_menu = ttk.Combobox(bottom_frame, textvariable=self.annotation_type)
         self.annotation_menu['values'] = ("Clear Label", "Label 1 Red", "Label 2 Green", "Label 3 Blue")
         self.annotation_menu.pack(side="left", padx=5)
-        # 创建透明度滑块
+
         self.opacity_label = Label(bottom_frame, text="Opacity:")
         self.opacity_label.pack(side="left")
         self.alpha_scale = Scale(bottom_frame, from_=0, to=100, orient="horizontal")
         self.alpha_scale.set(100)
         self.alpha_scale.pack(side="left", padx=5)
         self.alpha_scale.bind("<Motion>", self.update_opacity)
-        # 创建按钮
-        # self.annotate_button = Button(bottom_frame, text="Draw", command=self.toggle_annotation_mode)
-        # self.annotate_button.pack(side="left", padx=5)
-        # self.erase_button = Button(bottom_frame, text="Erase", command=self.toggle_erase_mode)
-        # self.erase_button.pack(side="left", padx=5)
         self.clear_button = Button(bottom_frame, text="Clear", command=self.clear_annotations)
         self.clear_button.pack(side="left", padx=5)
 
@@ -160,8 +148,6 @@ class ImageCropper:
         self.annotation_menu.pack_forget()
         self.opacity_label.pack_forget()
         self.alpha_scale.pack_forget()
-        # self.annotate_button.pack_forget()
-        # self.erase_button.pack_forget()
         self.clear_button.pack_forget()
 
     def set_crop_mode(self):
@@ -180,8 +166,6 @@ class ImageCropper:
         self.annotation_menu.pack_forget()
         self.opacity_label.pack_forget()
         self.alpha_scale.pack_forget()
-        # self.annotate_button.pack_forget()
-        # self.erase_button.pack_forget()
         self.clear_button.pack_forget()
         self.label.config(text="Crop mode selected")
 
@@ -243,8 +227,6 @@ class ImageCropper:
         self.annotation_menu.pack(side="left", padx=5)
         self.opacity_label.pack(side="left", padx=5)
         self.alpha_scale.pack(side="left", padx=5)
-        # self.annotate_button.pack(side="left", padx=5)
-        # self.erase_button.pack(side="left", padx=5)
         self.clear_button.pack(side="left", padx=5)
         self.label.config(text="Annotate mode selected")
 
@@ -335,8 +317,6 @@ class ImageCropper:
             # print(self.nii_data.shape)
             if len(self.nii_data.shape) == 5 and self.nii_data.shape[3] == 1:
                 self.nii_data = self.nii_data[:, :, :, 0, :]
-            # elif len(self.nii_data.shape) == 3:
-            #     self.nii_data = np.repeat(self.nii_data[:, :, :, np.newaxis], 3, axis=2)
             self.video_len = self.nii_data.shape[2]
             self.current_frame_index = 0
             self.frames = [np.uint8(self.nii_data[:, :, i, ...]) for i in range(self.nii_data.shape[2])]
@@ -367,7 +347,6 @@ class ImageCropper:
             ret, self.current_frame = self.video_capture.read()
             self.original_frame = self.current_frame.copy()
             if ret:
-                # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 if self.crop_area:
                     img = self.current_frame
                     cropped_img_array = img[self.crop_area[1]:self.crop_area[3], self.crop_area[0]:self.crop_area[2], :]
@@ -394,8 +373,6 @@ class ImageCropper:
                 image = np.transpose(image)
                 image = np.flip(image, 0)
                 image = np.flip(image, 1)
-            # image = np.flip(image, 1)
-            # image = np.flip(image, 0)
             adjusted_frame = self.adjust_brightness_contrast(image, self.brightness_scale.get(),
                                                              self.contrast_scale.get())
             self.image = Image.fromarray(adjusted_frame)
@@ -406,7 +383,6 @@ class ImageCropper:
                 text=f"Displaying frame {self.current_frame_index + 1}/{self.video_len} of {os.path.basename(self.current_video)}")
         if self.crop_area:
             self.rect = self.canvas.create_rectangle(self.crop_area, outline="red", width=2)
-            # self.canvas.coords(self.rect, *self.crop_area)
 
     def adjust_brightness_contrast(self, image, brightness=0, contrast=0):
         beta = brightness
@@ -414,7 +390,6 @@ class ImageCropper:
         return cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
 
     def draw_histogram(self):
-        # 初始化直方图数组
         hist = np.zeros((256,), dtype=np.float32)
         if self.current_video.lower().endswith(".dcm"):
             for frame in self.frames:
@@ -427,11 +402,9 @@ class ImageCropper:
                     adjusted_frame = self.adjust_brightness_contrast(frame, self.brightness_scale.get(),
                                                                      self.contrast_scale.get())
                 gray_frame = cv2.cvtColor(adjusted_frame, cv2.COLOR_RGB2GRAY)
-                # 计算当前帧的直方图并累加
                 frame_hist = cv2.calcHist([gray_frame], [0], None, [256], [0, 256])
                 hist += frame_hist.flatten()
         elif self.current_video.lower().endswith((".avi", '.mp4', '.wmv')):
-            # 重置视频到起始位置
             cap = self.video_capture
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
@@ -452,17 +425,14 @@ class ImageCropper:
                                                                      self.contrast_scale.get())
                 gray_frame = cv2.cvtColor(adjusted_frame, cv2.COLOR_RGB2GRAY)
 
-                # 计算当前帧的直方图并累加
                 frame_hist = cv2.calcHist([gray_frame], [0], None, [256], [0, 256])
                 hist += frame_hist.flatten()
 
         hist = (hist / hist.sum()) * 100
-        # 绘制累积直方图
         plt.figure()
         plt.title("Video Gray Scale Histogram")
         plt.xlabel("Pixel Value")
         plt.ylabel("Percent of Pixels")
-        # plt.plot(hist)
         plt.bar(range(256), hist, width=2)
         plt.xlim([-2, 258])
         plt.show()
@@ -495,13 +465,6 @@ class ImageCropper:
             elif event.delta < 0:
                 self.current_image_index = (self.current_image_index + 1) % len(self.image_paths)
             self.open_image(self.image_paths[self.current_image_index])
-
-    # def on_button_press(self, event):
-    #     self.start_x = event.x
-    #     self.start_y = event.y
-    #     if self.rect:
-    #         self.canvas.delete(self.rect)
-    #     self.rect = self.canvas.create_rectangle(self.start_x, self.start_y, self.start_x, self.start_y, outline="red")
 
     def on_mouse_press(self, event):
         # 鼠标按下时，记录起点位置
@@ -540,7 +503,6 @@ class ImageCropper:
                 else:
                     self.resizing = 0
                 # print(self.resizing)
-            # Otherwise start a new rectangle
                 self.canvas.delete(self.rect)
             self.crop_area = [event.x, event.y, event.x, event.y]
             self.rect = self.canvas.create_rectangle(self.crop_area, outline="red", width=2)
@@ -548,18 +510,15 @@ class ImageCropper:
 
     def on_mouse_drag(self, event):
         if self.mode.get() == 7 or self.mode.get() == 8:
-            # 鼠标移动时，计算当前点和上一个点之间的距离
             cur_x, cur_y = event.x, event.y
             distance = math.sqrt((cur_x - self.last_x) ** 2 + (cur_y - self.last_y) ** 2)
 
-            # 如果移动距离超过一定阈值，绘制线段并记录点
-            if distance > 5:  # 距离阈值，可以根据需求调整
+            if distance > 5:
                 self.canvas.create_line(self.last_x, self.last_y, cur_x, cur_y, fill='white')
                 self.points.append((cur_x, cur_y))
                 self.last_x, self.last_y = cur_x, cur_y
         else:
             if self.resizing:
-                # Resize the rectangle
                 if self.resizing == 1:
                     self.crop_area[0] = event.x
                     self.crop_area[1] = event.y
@@ -588,7 +547,6 @@ class ImageCropper:
 
     def on_mouse_release(self, event):
         if self.mode.get() == 7 or self.mode.get() == 8:
-            # 鼠标松开时，判断是否在起点附近
             cur_x, cur_y = self.start_x, self.start_y
 
             self.canvas.create_line(self.last_x, self.last_y, cur_x, cur_y, fill='red')
@@ -600,7 +558,6 @@ class ImageCropper:
             else:
                 self.fill_polygon()
 
-            # 清空顶点列表
             self.points = []
         else:
             self.drag_data = {"x": 0, "y": 0, "item": None}
@@ -611,11 +568,9 @@ class ImageCropper:
             self.label.config(text=f"Crop area: {self.crop_area}")
 
     def fill_polygon(self):
-        # 获取多边形区域
         if self.polygon:
             poly = np.array(self.polygon)
             mask = self.create_polygon_mask(self.current_frame.shape[:2], poly)
-            # 将多边形区域标记为所选类别颜色，应用透明度
             if self.annotation_type.get() == "Label 1 Red":
                 label = 1
                 color = [255, 0, 0]  # 红色
@@ -627,69 +582,42 @@ class ImageCropper:
                 color = [0, 0, 255]  # 蓝色
 
             self.mask[self.current_frame_index][mask] = label
-            alpha = self.alpha_scale.get() / 100.0  # 获取透明度
-            # self.annotations.append((mask, color))  # 保存标注
+            alpha = self.alpha_scale.get() / 100.0
             self.apply_all_annotations()
-            # self.apply_mask(mask, color, alpha)
-
-            # # print(mask.shape)
-            # # mask_rgb = np.zeros_like(self.current_frame)
-            # # mask_rgb[mask] = [255, 0, 0]
-            # # 将多边形区域标记为红色
-            # # self.current_frame = np.where(mask_rgb != 0, mask_rgb, self.current_frame)
-            # self.current_frame[mask] = [255, 0, 0]
-            #
-            # self.refresh_canvas()
 
     def erase_polygon(self):
-        # 获取多边形区域
         if self.polygon:
             poly = np.array(self.polygon)
             mask = self.create_polygon_mask(self.current_frame.shape[:2], poly)
-            # 移除标注列表中与擦除区域重叠的标注
             self.mask[self.current_frame_index][mask] = 0
-            # 恢复对应区域的原始帧颜色
             self.current_frame[mask] = self.original_frame[mask]
             self.refresh_canvas()
 
     def create_polygon_mask(self, shape, polygon):
-        # 创建一个与图像同样大小的空白掩膜
         mask = np.zeros(shape, dtype=np.uint8)
-        # 使用 OpenCV 填充多边形
         cv2.fillPoly(mask, [polygon], 1)
 
         return mask.astype(bool)
 
     def apply_mask(self, mask, color, alpha=None):
-        if color is not None:  # 绘制标注
+        if color is not None:
             overlay = np.zeros_like(self.current_frame)
             overlay[mask] = color
 
-            # 混合原图像和标注
             overlay = cv2.addWeighted(self.current_frame, 1.0-alpha, overlay, alpha, 1)
             self.current_frame[mask] = overlay[mask]
-        else:  # 擦除标注
+        else:
             self.current_frame[mask] = self.original_frame[mask]
 
         self.refresh_canvas()
 
     def apply_all_annotations(self):
-        # 重新应用所有标注
         self.current_frame = self.original_frame.copy()
-        alpha = self.alpha_scale.get() / 100.0  # 获取透明度
-        # for mask, color in self.annotations:
-        #     if color is None:
-        #         self.current_frame[mask] = self.original_frame[mask]
-        #         continue
-        #     overlay = np.zeros_like(self.current_frame)
-        #     overlay[mask] = color
-        #     overlay = cv2.addWeighted(self.current_frame, 1.0 - alpha, overlay, alpha, 1)
-        #     self.current_frame[mask] = overlay[mask]
-        # 根据mask填充颜色
+        alpha = self.alpha_scale.get() / 100.0 
         overlay = np.zeros_like(self.current_frame)
-        overlay[self.mask[self.current_frame_index] == 1] = [255, 0, 0]  # 类别A颜色
-        overlay[self.mask[self.current_frame_index] == 2] = [0, 255, 0]  # 类别B颜色
-        overlay[self.mask[self.current_frame_index] == 3] = [0, 0, 255]  # 类别C颜色
+        overlay[self.mask[self.current_frame_index] == 1] = [255, 0, 0]
+        overlay[self.mask[self.current_frame_index] == 2] = [0, 255, 0]
+        overlay[self.mask[self.current_frame_index] == 3] = [0, 0, 255]
         overlay = cv2.addWeighted(self.current_frame, 1.0 - alpha, overlay, alpha, 1)
         self.current_frame[self.mask[self.current_frame_index] == 1] = overlay[self.mask[self.current_frame_index] == 1]
         self.current_frame[self.mask[self.current_frame_index] == 2] = overlay[self.mask[self.current_frame_index] == 2]
@@ -697,27 +625,20 @@ class ImageCropper:
         self.refresh_canvas()
 
     def update_opacity(self, event=None):
-        # 在滑动透明度条时，更新所有标注的透明度
         self.apply_all_annotations()
 
     def clear_annotations(self):
-        # 清除标注并恢复原始图像
         self.mask[self.current_frame_index].fill(0)
         self.current_frame = self.original_frame.copy()
         self.refresh_canvas()
 
     def refresh_canvas(self):
-        # 更新Canvas显示
         self.image_tk = ImageTk.PhotoImage(image=Image.fromarray(self.current_frame))
         self.canvas.config(width=self.image_tk.width(), height=self.image_tk.height())
         self.canvas.create_image(0, 0, anchor="nw", image=self.image_tk)
-        # self.photo = ImageTk.PhotoImage(image=Image.fromarray(self.current_frame))
-        # # self.canvas.itemconfig(self.current_frame, image=self.photo)
-        # self.canvas.image = self.photo  # 避免图像被垃圾回收
 
     def save_annotation(self):
         output_path = os.path.dirname(self.current_video) + '_annotate/' + os.path.basename(self.current_video)
-        # print(output_folder_path)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         img_array = np.array(self.mask)
         if self.crop_area:
@@ -726,88 +647,6 @@ class ImageCropper:
         nib.save(nib.Nifti1Image(np.fliplr(np.rot90(np.transpose(img_array, [1, 2, 0]))), np.eye(4)), output_nii_path)
         # print(output_dcm_path)
         self.label.config(text=f"Annotation saved as {output_nii_path}")
-
-
-    # def on_button_press(self, event):
-    #     # Check if click is on the resize handle
-    #     if self.rect and self.canvas.coords(self.rect):
-    #         x1, y1, x2, y2 = self.canvas.coords(self.rect)
-    #         if x1 - 10 <= event.x <= x1 + 10 and y1 - 10 <= event.y <= y1 + 10:
-    #             self.resizing = 1
-    #             return
-    #         elif x1 + 10 <= event.x <= x2 - 10 and y1 - 10 <= event.y <= y1 + 10:
-    #             self.resizing = 2
-    #             return
-    #         elif x2 - 10 <= event.x <= x2 + 10 and y1 - 10 <= event.y <= y1 + 10:
-    #             self.resizing = 3
-    #             return
-    #         elif x2 - 10 <= event.x <= x2 + 10 and y1 + 10 <= event.y <= y2 - 10:
-    #             self.resizing = 4
-    #             return
-    #         elif x2 - 10 <= event.x <= x2 + 10 and y2 - 10 <= event.y <= y2 + 10:
-    #             self.resizing = 5
-    #             return
-    #         elif x1 + 10 <= event.x <= x2 - 10 and y2 - 10 <= event.y <= y2 + 10:
-    #             self.resizing = 6
-    #             return
-    #         elif x1 - 10 <= event.x <= x1 + 10 and y2 - 10 <= event.y <= y2 + 10:
-    #             self.resizing = 7
-    #             return
-    #         elif x1 - 10 <= event.x <= x1 + 10 and y1 + 10 <= event.y <= y2 - 10:
-    #             self.resizing = 8
-    #             return
-    #         else:
-    #             self.resizing = 0
-    #         # print(self.resizing)
-    #     # Otherwise start a new rectangle
-    #         self.canvas.delete(self.rect)
-    #     self.crop_area = [event.x, event.y, event.x, event.y]
-    #     self.rect = self.canvas.create_rectangle(self.crop_area, outline="red", width=2)
-    #     self.drag_data = {"x": event.x, "y": event.y, "item": self.rect}
-    #
-    # # def on_mouse_drag(self, event):
-    # #     self.canvas.coords(self.rect, self.start_x, self.start_y, event.x, event.y)
-    #
-    # def on_mouse_drag(self, event):
-    #     if self.resizing:
-    #         # Resize the rectangle
-    #         if self.resizing == 1:
-    #             self.crop_area[0] = event.x
-    #             self.crop_area[1] = event.y
-    #         elif self.resizing == 2:
-    #             self.crop_area[1] = event.y
-    #         elif self.resizing == 3:
-    #             self.crop_area[2] = event.x
-    #             self.crop_area[1] = event.y
-    #         elif self.resizing == 4:
-    #             self.crop_area[2] = event.x
-    #         elif self.resizing == 5:
-    #             self.crop_area[2] = event.x
-    #             self.crop_area[3] = event.y
-    #         elif self.resizing == 6:
-    #             self.crop_area[3] = event.y
-    #         elif self.resizing == 7:
-    #             self.crop_area[0] = event.x
-    #             self.crop_area[3] = event.y
-    #         elif self.resizing == 8:
-    #             self.crop_area[0] = event.x
-    #         self.canvas.coords(self.rect, *self.crop_area)
-    #     elif self.drag_data["item"]:
-    #         self.crop_area[2] = event.x
-    #         self.crop_area[3] = event.y
-    #         self.canvas.coords(self.rect, *self.crop_area)
-    #
-    # # def on_button_release(self, event):
-    # #     self.crop_area = (self.start_x, self.start_y, event.x, event.y)
-    # #     self.label.config(text=f"Crop area: {self.crop_area}")
-    #
-    # def on_button_release(self, event):
-    #     self.drag_data = {"x": 0, "y": 0, "item": None}
-    #     self.resizing = False
-    #     # self.crop_area[2] = event.x
-    #     # self.crop_area[3] = event.y
-    #     self.canvas.coords(self.rect, *self.crop_area)
-    #     self.label.config(text=f"Crop area: {self.crop_area}")
 
     def on_motion(self, event):
         if self.resizing or self.dragging:
